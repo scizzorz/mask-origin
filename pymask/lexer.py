@@ -67,11 +67,57 @@ class one(parser):
     if ctx.token == self.token:
       ctx.next()
       return True
-    raise SyntaxError('Expected {}, found {}'.format(self.token, ctx.token))
+    raise SyntaxError('Found {}, expected {}'.format(ctx.token, self))
+
+  def peek(self, ctx):
+    return ctx.token == self.token
+
+  def __str__(self):
+    return str(self.token)
 
 class all(parser):
   def __init__(self, *subs):
     self.subs = subs
+
+  def match(self, ctx):
+    for sub in self.subs:
+      sub.match(ctx)
+    else:
+      return True
+
+  def peek(self, ctx):
+    return self.subs[0].peek(ctx)
+
+  def __str__(self):
+    return ' '.join(str(x) for x in self.subs)
+
+class aux_any(parser):
+  def __init__(self, *subs):
+    self.subs = subs
+
+  def match(self, ctx):
+    for sub in self.subs:
+      if sub.peek(ctx):
+        return sub.match(ctx)
+
+    raise SyntaxError('Found {}, expected any of {}'.format(ctx.token, self))
+
+  def peek(self, ctx):
+    for sub in self.subs:
+      if sub.peek(ctx):
+        return True
+
+    return False
+
+  def __str__(self):
+    return ' | '.join(str(x) for x in self.subs)
+
+class any(parser):
+  def __init__(self, *subs):
+    self.subs = subs
+    for sub in subs:
+      if not isinstance(sub, all):
+        raise TypeError('Subparser is not of type `all`: {!r}'.format(sub))
 
   def match(self, ctx):
     pass
@@ -84,3 +130,10 @@ def int_stream():
     i += 1
 
 ctx = context(int_stream())
+
+m0 = one(number(0))
+m1 = one(number(1))
+m2 = one(number(2))
+
+jux = all(m0, m1, m2)
+alt = aux_any(m0, m1, m2)
