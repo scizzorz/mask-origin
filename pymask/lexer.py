@@ -1,8 +1,8 @@
-class metatoken(type):
-  def method(cls, func):
-    setattr(cls, func.__name__, func)
-    return func
+#########
+# Lexer #
+#########
 
+class metatoken(type):
   def __str__(self):
     return self.__name__
 
@@ -28,18 +28,36 @@ class value_token(token):
   def __repr__(self):
     return '<{}({!r})>'.format(type(self), self.value)
 
-class name(value_token):
+class name_token(value_token):
   pass
 
-class number(value_token):
+class number_token(value_token):
   pass
 
+class symbol_token(value_token):
+  pass
+
+#######
+# AST #
+#######
 
 class metanode(type):
-  pass
+  def method(cls, func):
+    setattr(cls, func.__name__, func)
+    return func
+
+  def __str__(self):
+    return self.__name__
+
+  def __repr__(self):
+    return '<{}>'.format(self.__name__)
 
 class node(metaclass=metanode):
   pass
+
+##########
+# Parser #
+##########
 
 class context:
   def __init__(self, stream):
@@ -51,7 +69,6 @@ class context:
     self.token = self.peek
     self.peek = next(self.stream)
 
-
 class parser:
   def __init__(self):
     pass
@@ -59,7 +76,7 @@ class parser:
   def match(self, ctx):
     raise NotImplementedError('Invalid parser')
 
-class one(parser):
+class eq(parser):
   def __init__(self, token):
     self.token = token
 
@@ -122,18 +139,21 @@ class any(parser):
   def match(self, ctx):
     pass
 
+###########
+# Testing #
+###########
 
 def int_stream():
   i = 0
   while True:
-    yield number(i)
-    i += 1
+    yield number_token(i)
+    i = i % 3
 
 ctx = context(int_stream())
 
-m0 = one(number(0))
-m1 = one(number(1))
-m2 = one(number(2))
+m0 = eq(number_token(0))
+m1 = eq(number_token(1))
+m2 = eq(number_token(2))
 
 jux = all(m0, m1, m2)
 alt = aux_any(m0, m1, m2)
