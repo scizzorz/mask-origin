@@ -55,6 +55,25 @@ class metanode(type):
 class node(metaclass=metanode):
   pass
 
+class value_node(node):
+  def __init__(self, value):
+    self.value = value
+
+  def __eq__(self, other):
+    if not isinstance(other, value_token):
+      return False
+
+    return self.value == other.value
+
+  def __str__(self):
+    return '{}({!r})'.format(type(self), self.value)
+
+  def __repr__(self):
+    return '<{}({!r})>'.format(type(self), self.value)
+
+class literal_node(value_node):
+  pass
+
 ##########
 # Parser #
 ##########
