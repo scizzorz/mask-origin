@@ -111,6 +111,22 @@ class eq(parser):
   def __str__(self):
     return str(self.token)
 
+class lt(parser):
+  def __init__(self, kind):
+    self.kind = kind
+
+  def match(self, ctx):
+    if isinstance(ctx.token, self.kind):
+      ctx.next()
+      return True
+    raise SyntaxError('Found {}, expected {}'.format(type(ctx.token), self))
+
+  def peek(self, ctx):
+    return isinstance(ctx.token, self.kind)
+
+  def __str__(self):
+    return str(self.kind)
+
 class all(parser):
   def __init__(self, *subs):
     self.subs = subs
