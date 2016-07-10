@@ -113,7 +113,7 @@ class all(parser):
   def __str__(self):
     return ' '.join(str(x) for x in self.subs)
 
-class aux_any(parser):
+class any(parser):
   def __init__(self, *subs):
     self.subs = subs
 
@@ -134,7 +134,7 @@ class aux_any(parser):
   def __str__(self):
     return ' | '.join(str(x) for x in self.subs)
 
-class any(parser):
+class any_strict(parser):
   def __init__(self, *subs):
     self.subs = subs
     for sub in subs:
@@ -247,5 +247,5 @@ m1 = eq(number_token(1))
 m2 = eq(number_token(2))
 
 jux = all(m0, m1, m2)
-alt = aux_any(m0, m1, m2)
+alt = any(m0, m1, m2)
 decl = [name_token('x'), symbol_token(':'), number_token(3)]
