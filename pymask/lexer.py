@@ -221,9 +221,9 @@ class decl_node(node):
 @decl_node.method
 def match(ctx):
   self = decl_node()
-  self.name = lt(name_token).match(ctx)
+  self.names = plus(lt(name_token)).match(ctx)
   eq(symbol_token(':')).match(ctx)
-  self.val = lt(number_token).match(ctx)
+  self.type = lt(number_token).match(ctx)
   return self
 
 @decl_node.method
