@@ -62,7 +62,10 @@ class parser:
     pass
 
   def match(self, ctx):
-    raise NotImplementedError('Invalid parser')
+    raise NotImplementedError('Invalid parser: no `match` method')
+
+  def peek(self, ctx):
+    raise NotImplementedError('Invalid parser: no `peek` method')
 
 class eq(parser):
   def __init__(self, token):
