@@ -144,6 +144,40 @@ class any(parser):
   def match(self, ctx):
     pass
 
+class many(parser):
+  def __init__(self, sub):
+    self.sub = sub
+
+class star(many):
+  def match(self, ctx):
+    ret = []
+    while self.sub.peek(ctx):
+      ret.append(self.sub.match(ctx))
+
+    return ret
+
+  def peek(self, ctx):
+    return True
+
+class plus(many):
+  def match(self, ctx):
+    ret = [self.sub.match(ctx)]
+    while self.sub.peek(ctx):
+      ret.append(self.sub.match(ctx))
+
+    return ret
+
+  def peek(self, ctx):
+    return self.sub.peek(ctx)
+
+class opt(many):
+  def match(self, ctx):
+    if self.sub.peek(ctx):
+      return self.sub.match(ctx)
+
+  def peek(self, ctx):
+    return True
+
 #######
 # AST #
 #######
@@ -202,9 +236,9 @@ def peek(self, ctx):
 
 def int_stream():
   i = 0
-  while True:
+  while i < 10:
     yield number_token(i)
-    i = i % 3
+    i += 1
 
 ctx = context(int_stream())
 
