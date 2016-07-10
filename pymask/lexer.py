@@ -12,6 +12,9 @@ class metatoken(type):
 class token(metaclass=metatoken):
   pass
 
+class end_token(token):
+  pass
+
 class value_token(token):
   def __init__(self, value):
     self.value = value
@@ -81,12 +84,15 @@ class literal_node(value_node):
 class context:
   def __init__(self, stream):
     self.stream = stream
-    self.token = next(stream)
     self.peek = next(stream)
+    self.next()
 
   def next(self):
     self.token = self.peek
-    self.peek = next(self.stream)
+    try:
+      self.peek = next(self.stream)
+    except StopIteration:
+      self.peek = end_token()
 
 class parser:
   def __init__(self):
