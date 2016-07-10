@@ -40,43 +40,6 @@ class number_token(value_token):
 class symbol_token(value_token):
   pass
 
-#######
-# AST #
-#######
-
-class metanode(type):
-  def method(cls, func):
-    setattr(cls, func.__name__, func)
-    return func
-
-  def __str__(self):
-    return self.__name__
-
-  def __repr__(self):
-    return '<{}>'.format(self.__name__)
-
-class node(metaclass=metanode):
-  pass
-
-class value_node(node):
-  def __init__(self, value):
-    self.value = value
-
-  def __eq__(self, other):
-    if not isinstance(other, value_token):
-      return False
-
-    return self.value == other.value
-
-  def __str__(self):
-    return '{}({!r})'.format(type(self), self.value)
-
-  def __repr__(self):
-    return '<{}({!r})>'.format(type(self), self.value)
-
-class literal_node(value_node):
-  pass
-
 ##########
 # Parser #
 ##########
@@ -178,6 +141,58 @@ class any(parser):
   def match(self, ctx):
     pass
 
+#######
+# AST #
+#######
+
+class metanode(type):
+  def method(cls, func):
+    setattr(cls, func.__name__, func)
+    return func
+
+  def __str__(self):
+    return self.__name__
+
+  def __repr__(self):
+    return '<{}>'.format(self.__name__)
+
+class node(parser, metaclass=metanode):
+  pass
+
+class value_node(node):
+  def __init__(self, value):
+    self.value = value
+
+  def __eq__(self, other):
+    if not isinstance(other, value_token):
+      return False
+
+    return self.value == other.value
+
+  def __str__(self):
+    return '{}({!r})'.format(type(self), self.value)
+
+  def __repr__(self):
+    return '<{}({!r})>'.format(type(self), self.value)
+
+class literal_node(value_node):
+  pass
+
+class decl_node(node):
+  pass
+
+@decl_node.method
+def match(ctx):
+  self = decl_node()
+  self.name = lt(name_token).match(ctx)
+  eq(symbol_token(':')).match(ctx)
+  self.val = lt(number_token).match(ctx)
+  return self
+
+@decl_node.method
+def peek(self, ctx):
+  return lt(name_token).match(ctx)
+
 ###########
 # Testing #
 ###########
@@ -196,3 +211,4 @@ m2 = eq(number_token(2))
 
 jux = all(m0, m1, m2)
 alt = aux_any(m0, m1, m2)
+decl = [name_token('x'), symbol_token(':'), number_token(3)]
