@@ -108,7 +108,7 @@ class eq(parser):
   def match(self, ctx):
     if ctx.token == self.token:
       ctx.next()
-      return True
+      return self.token
     raise SyntaxError('Found {}, expected {}'.format(ctx.token, self))
 
   def peek(self, ctx):
@@ -123,8 +123,9 @@ class lt(parser):
 
   def match(self, ctx):
     if isinstance(ctx.token, self.kind):
+      ret = ctx.token
       ctx.next()
-      return True
+      return ret
     raise SyntaxError('Found {}, expected {}'.format(type(ctx.token), self))
 
   def peek(self, ctx):
@@ -138,10 +139,7 @@ class all(parser):
     self.subs = subs
 
   def match(self, ctx):
-    for sub in self.subs:
-      sub.match(ctx)
-    else:
-      return True
+    return [sub.match(ctx) for sub in self.subs]
 
   def peek(self, ctx):
     return self.subs[0].peek(ctx)
