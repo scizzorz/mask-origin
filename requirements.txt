@@ -1,5 +1,7 @@
 apipkg==1.4
+coverage==4.1
 execnet==1.4.1
 py==1.4.31
 pytest==2.9.2
+pytest-cov==2.3.0
 pytest-xdist==1.14

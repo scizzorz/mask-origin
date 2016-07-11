@@ -5,4 +5,4 @@ install:
   - pip install -r requirements.txt
 
 script:
-  - py.test -rap -v -n 0 --tb=long
+  - py.test -rap -v -n 0 --tb=long --cov=pymask
