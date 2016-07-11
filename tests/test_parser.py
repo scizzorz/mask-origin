@@ -2,6 +2,7 @@ import pymask.lexer as L
 import pymask.parser as P
 import pytest
 xfail = pytest.mark.xfail
+ni = xfail(raises=NotImplementedError)
 syntax = xfail(raises=SyntaxError)
 
 def num_stream(lim=0):
@@ -16,7 +17,7 @@ def name_stream(lim=0):
     yield L.name_token('name_' + str(i))
     i += 1
 
-def dual_stream(names=1, nums=1, lim=0):
+def dual_stream(lim=0, names=1, nums=1):
   a = name_stream()
   b = num_stream()
   i = 0
@@ -28,6 +29,17 @@ def dual_stream(names=1, nums=1, lim=0):
       yield next(b)
 
     i += 1
+
+
+@ni
+def test_ni1():
+  ctx = P.context(num_stream())
+  P.parser().match(ctx)
+
+@ni
+def test_ni2():
+  ctx = P.context(num_stream())
+  P.parser().peek(ctx)
 
 def test_eq():
   ctx = P.context(num_stream(3))
@@ -90,3 +102,24 @@ def test_any_err1():
   P.any(P.eq(L.number_token(0)), P.eq(L.number_token(1))).match(ctx)
   P.any(P.eq(L.number_token(0)), P.eq(L.number_token(1))).match(ctx)
   P.any(P.eq(L.number_token(0)), P.eq(L.number_token(1))).match(ctx)
+
+def test_opt():
+  ctx = P.context(dual_stream(2))
+  assert P.opt(P.lt(L.number_token)).match(ctx) == None
+  assert P.opt(P.lt(L.name_token)).match(ctx) == L.name_token('name_0')
+  assert P.opt(P.lt(L.number_token)).match(ctx) == L.number_token(0)
+
+def test_star():
+  ctx = P.context(dual_stream(2, names=2))
+  assert P.star(P.lt(L.name_token)).match(ctx) == [L.name_token('name_0'), L.name_token('name_1')]
+  assert P.star(P.lt(L.name_token)).match(ctx) == []
+
+def test_plus():
+  ctx = P.context(dual_stream(2, names=2))
+  assert P.plus(P.lt(L.name_token)).match(ctx) == [L.name_token('name_0'), L.name_token('name_1')]
+  assert P.plus(P.lt(L.number_token)).match(ctx) == [L.number_token(0)]
+
+@syntax
+def test_plus_err1():
+  ctx = P.context(dual_stream(2))
+  P.plus(P.lt(L.number_token)).match(ctx)
