@@ -102,6 +102,9 @@ class star(many):
   def peek(self, ctx):
     return True
 
+  def __str__(self):
+    return '{}*'.format(self.sub)
+
 class plus(many):
   def match(self, ctx):
     ret = [self.sub.match(ctx)]
@@ -113,6 +116,9 @@ class plus(many):
   def peek(self, ctx):
     return self.sub.peek(ctx)
 
+  def __str__(self):
+    return '{}+'.format(self.sub)
+
 class opt(many):
   def match(self, ctx):
     if self.sub.peek(ctx):
@@ -120,3 +126,6 @@ class opt(many):
 
   def peek(self, ctx):
     return True
+
+  def __str__(self):
+    return '{}?'.format(self.sub)
