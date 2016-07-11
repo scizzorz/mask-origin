@@ -2,6 +2,7 @@ import pymask.lexer as L
 import pymask.parser as P
 import pytest
 xfail = pytest.mark.xfail
+syntax = xfail(raises=SyntaxError)
 
 def num_stream(lim=0):
   i = 0
@@ -34,12 +35,12 @@ def test_eq():
   assert P.eq(L.number_token(1)).match(ctx) == L.number_token(1)
   assert P.eq(L.number_token(2)).match(ctx) == L.number_token(2)
 
-@xfail(raises=SyntaxError)
+@syntax
 def test_eq_err1():
   ctx = P.context(num_stream(3))
   P.eq(L.number_token(1)).match(ctx)
 
-@xfail(raises=SyntaxError)
+@syntax
 def test_eq_err2():
   ctx = P.context(name_stream(3))
   P.eq(L.number_token(0)).match(ctx)
@@ -51,12 +52,12 @@ def test_lt():
   assert P.lt(L.number_token).match(ctx) == L.number_token(1)
   assert P.lt(L.number_token).match(ctx) == L.number_token(2)
 
-@xfail(raises=SyntaxError)
+@syntax
 def test_lt_err1():
   ctx = P.context(num_stream(3))
   P.lt(L.name_token).match(ctx)
 
-@xfail(raises=SyntaxError)
+@syntax
 def test_lt_err2():
   ctx = P.context(name_stream(3))
   P.eq(L.number_token).match(ctx)
@@ -68,7 +69,7 @@ def test_all():
   assert P.all(P.eq(L.number_token(1)), P.eq(L.number_token(2))).match(ctx) == [L.number_token(1), L.number_token(2)]
   assert P.all(P.lt(L.number_token), P.lt(L.number_token), P.lt(L.number_token)).match(ctx) == [L.number_token(3), L.number_token(4), L.number_token(5)]
 
-@xfail(raises=SyntaxError)
+@syntax
 def test_all_err1():
   ctx = P.context(num_stream(3))
   P.all(P.lt(L.number_token), P.lt(L.number_token), P.lt(L.name_token)).match(ctx)
