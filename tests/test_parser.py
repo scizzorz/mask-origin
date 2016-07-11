@@ -83,3 +83,10 @@ def test_any():
   ctx = P.context(name_stream(2))
   assert P.any(P.lt(L.number_token), P.lt(L.name_token)).match(ctx) == L.name_token('name_0')
   assert P.any(P.lt(L.number_token), P.lt(L.name_token)).match(ctx) == L.name_token('name_1')
+
+@syntax
+def test_any_err1():
+  ctx = P.context(num_stream(3))
+  P.any(P.eq(L.number_token(0)), P.eq(L.number_token(1))).match(ctx)
+  P.any(P.eq(L.number_token(0)), P.eq(L.number_token(1))).match(ctx)
+  P.any(P.eq(L.number_token(0)), P.eq(L.number_token(1))).match(ctx)
