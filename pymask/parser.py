@@ -1,8 +1,11 @@
 from .lexer import end_token
+from .error import MaskError
+from .error import MaskSyntaxError
 
 class context:
-  def __init__(self, stream):
+  def __init__(self, stream, exc=MaskSyntaxError):
     self.stream = stream
+    self.exc = exc
     self.peek = next(stream)
     self.next()
 
@@ -13,12 +16,22 @@ class context:
     except StopIteration:
       self.peek = end_token()
 
+  def panic(self, msg, exc=None):
+    if exc is None:
+      exc = self.exc
+
+    if MaskError in exc.mro():
+      raise exc(msg, self.token)
+    else:
+      raise exc(msg)
+
+
 class parser:
   def match(self, ctx):
-    raise NotImplementedError('Invalid parser: no `match` method')
+    ctx.panic('Invalid parser: no `match` method', exc=NotImplementedError)
 
   def peek(self, ctx):
-    raise NotImplementedError('Invalid parser: no `peek` method')
+    ctx.panic('Invalid parser: no `peek` method', exc=NotImplementedError)
 
 class eq(parser):
   def __init__(self, token):
@@ -28,7 +41,7 @@ class eq(parser):
     if ctx.token == self.token:
       ctx.next()
       return self.token
-    raise SyntaxError('Found {}, expected {}'.format(ctx.token, self))
+    ctx.panic('Found {}, expected {}'.format(ctx.token, self))
 
   def peek(self, ctx):
     return ctx.token == self.token
@@ -45,7 +58,7 @@ class lt(parser):
       ret = ctx.token
       ctx.next()
       return ret
-    raise SyntaxError('Found {}, expected {}'.format(type(ctx.token), self))
+    ctx.panic('Found {}, expected {}'.format(type(ctx.token), self))
 
   def peek(self, ctx):
     return isinstance(ctx.token, self.kind)
@@ -75,7 +88,7 @@ class any(parser):
       if sub.peek(ctx):
         return sub.match(ctx)
 
-    raise SyntaxError('Found {}, expected any of {}'.format(ctx.token, self))
+    ctx.panic('Found {}, expected any of {}'.format(ctx.token, self))
 
   def peek(self, ctx):
     for sub in self.subs:
