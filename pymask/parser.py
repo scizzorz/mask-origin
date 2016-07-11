@@ -14,9 +14,6 @@ class context:
       self.peek = end_token()
 
 class parser:
-  def __init__(self):
-    pass
-
   def match(self, ctx):
     raise NotImplementedError('Invalid parser: no `match` method')
 
@@ -89,16 +86,6 @@ class any(parser):
 
   def __str__(self):
     return ' | '.join(str(x) for x in self.subs)
-
-class any_strict(parser):
-  def __init__(self, *subs):
-    self.subs = subs
-    for sub in subs:
-      if not isinstance(sub, all):
-        raise TypeError('Subparser is not of type `all`: {!r}'.format(sub))
-
-  def match(self, ctx):
-    pass
 
 class many(parser):
   def __init__(self, sub):
