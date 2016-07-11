@@ -15,6 +15,19 @@ def name_stream(lim=0):
     yield L.name_token('name_' + str(i))
     i += 1
 
+def dual_stream(names=1, nums=1, lim=0):
+  a = name_stream()
+  b = num_stream()
+  i = 0
+  while lim == 0 or i < lim:
+    for x in range(names):
+      yield next(a)
+
+    for x in range(nums):
+      yield next(b)
+
+    i += 1
+
 def test_eq():
   ctx = P.context(num_stream(3))
   assert P.eq(L.number_token(0)).match(ctx) == L.number_token(0)
