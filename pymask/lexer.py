@@ -54,16 +54,25 @@ class operator_token(value_token):
   pass
 
 class int_token(value_token):
-  pass
+  def __init__(self, value):
+    super().__init__(int(value))
 
 class float_token(value_token):
-  pass
+  def __init__(self, value):
+    super().__init__(float(value))
 
 class bool_token(value_token):
-  pass
+  def __init__(self, value):
+    super().__init__(value.lower() == 'true')
 
 class string_token(value_token):
-  pass
+  def __init__(self, value):
+    super().__init__(self.unescape(value))
+
+  @staticmethod
+  def unescape(data):
+    return bytes(data[1:-1].encode('utf-8')).decode('unicode_escape')
+
 
 # Lexing
 
@@ -96,28 +105,12 @@ def factory(data):
   else:
     return name_token(data)
 
-def unescape(data):
-  return bytes(data[1:-1].encode('utf-8')).decode('unicode_escape')
-
-'''
-rules = [
-  Pattern(r'#.*', None),
-  Pattern(r'""|"(.*?[^\\])"', string_token, converter=unescape),
-  Pattern(r'(?:0|[1-9][0-9]*)\.[0-9]+', float_token, converter=float),
-  Pattern(r'0|[1-9][0-9]*', int_token, converter=int),
-  Pattern(r'true|false', bool_token, converter=lambda x: x == 'true'),
-  Pattern(r'[a-zA-Z_][a-zA-Z0-9_]*', factory),
-  Pattern('|'.join(re.escape(x) for x in OPERATORS), operator_token),
-  Pattern(r'.', symbol_token),
-]
-'''
-
 rules = {
   r'#.*': None,
-  r'""|"(.*?[^\\])"': string_token,# converter=unescape,
-  r'(?:0|[1-9][0-9]*)\.[0-9]+': float_token,# converter=float,
-  r'0|[1-9][0-9]*': int_token,# converter=int,
-  r'true|false': bool_token,# converter=lambda x: x == 'true',
+  r'""|"(.*?[^\\])"': string_token,
+  r'(?:0|[1-9][0-9]*)\.[0-9]+': float_token,
+  r'0|[1-9][0-9]*': int_token,
+  r'true|false': bool_token,
   r'[a-zA-Z_][a-zA-Z0-9_]*': factory,
   '|'.join(re.escape(x) for x in OPERATORS): operator_token,
   r'.': symbol_token,
