@@ -43,6 +43,11 @@ def test_ni2():
 
 def test_eq():
   ctx = P.context(num_stream(3))
+  assert str(P.eq(L.number_token(0))) == 'number_token(0)'
+
+  assert P.eq(L.number_token(0)).peek(ctx)
+  assert not P.eq(L.number_token(1)).peek(ctx)
+
   assert P.eq(L.number_token(0)).match(ctx) == L.number_token(0)
   assert P.eq(L.number_token(1)).match(ctx) == L.number_token(1)
   assert P.eq(L.number_token(2)).match(ctx) == L.number_token(2)
@@ -60,6 +65,11 @@ def test_eq_err2():
 
 def test_lt():
   ctx = P.context(num_stream(3))
+  assert str(P.lt(L.number_token)) == 'number_token'
+
+  assert P.lt(L.number_token).peek(ctx)
+  assert not P.lt(L.name_token).peek(ctx)
+
   assert P.lt(L.number_token).match(ctx) == L.number_token(0)
   assert P.lt(L.number_token).match(ctx) == L.number_token(1)
   assert P.lt(L.number_token).match(ctx) == L.number_token(2)
@@ -77,6 +87,11 @@ def test_lt_err2():
 
 def test_all():
   ctx = P.context(num_stream(6))
+  assert str(P.all(P.lt(L.number_token), P.lt(L.name_token))) == 'number_token name_token'
+
+  assert P.all(P.eq(L.number_token(0))).peek(ctx)
+  assert P.all(P.eq(L.number_token(0)), P.eq(L.number_token(1))).peek(ctx)
+
   assert P.all(P.eq(L.number_token(0))).match(ctx) == [L.number_token(0)]
   assert P.all(P.eq(L.number_token(1)), P.eq(L.number_token(2))).match(ctx) == [L.number_token(1), L.number_token(2)]
   assert P.all(P.lt(L.number_token), P.lt(L.number_token), P.lt(L.number_token)).match(ctx) == [L.number_token(3), L.number_token(4), L.number_token(5)]
@@ -88,6 +103,12 @@ def test_all_err1():
 
 def test_any():
   ctx = P.context(num_stream(3))
+  assert str(P.any(P.lt(L.number_token), P.lt(L.name_token))) == 'number_token | name_token'
+
+  assert P.any(P.lt(L.number_token), P.lt(L.name_token)).peek(ctx)
+  assert P.any(P.lt(L.name_token), P.lt(L.number_token)).peek(ctx)
+  assert not P.any(P.lt(L.symbol_token)).peek(ctx)
+
   assert P.any(P.lt(L.number_token), P.lt(L.name_token)).match(ctx) == L.number_token(0)
   assert P.any(P.eq(L.number_token(1)), P.eq(L.number_token(2))).match(ctx) == L.number_token(1)
   assert P.any(P.eq(L.number_token(1)), P.eq(L.number_token(2))).match(ctx) == L.number_token(2)
@@ -105,17 +126,32 @@ def test_any_err1():
 
 def test_opt():
   ctx = P.context(dual_stream(2))
+  assert str(P.opt(P.lt(L.number_token))) == 'number_token?'
+
+  assert P.opt(P.lt(L.number_token)).peek(ctx)
+  assert P.opt(P.lt(L.name_token)).peek(ctx)
+
   assert P.opt(P.lt(L.number_token)).match(ctx) == None
   assert P.opt(P.lt(L.name_token)).match(ctx) == L.name_token('name_0')
   assert P.opt(P.lt(L.number_token)).match(ctx) == L.number_token(0)
 
 def test_star():
   ctx = P.context(dual_stream(2, names=2))
+  assert str(P.star(P.lt(L.number_token))) == 'number_token*'
+
+  assert P.star(P.lt(L.number_token)).peek(ctx)
+  assert P.star(P.lt(L.name_token)).peek(ctx)
+
   assert P.star(P.lt(L.name_token)).match(ctx) == [L.name_token('name_0'), L.name_token('name_1')]
   assert P.star(P.lt(L.name_token)).match(ctx) == []
 
 def test_plus():
   ctx = P.context(dual_stream(2, names=2))
+  assert str(P.plus(P.lt(L.number_token))) == 'number_token+'
+
+  assert P.plus(P.lt(L.name_token)).peek(ctx)
+  assert not P.plus(P.lt(L.number_token)).peek(ctx)
+
   assert P.plus(P.lt(L.name_token)).match(ctx) == [L.name_token('name_0'), L.name_token('name_1')]
   assert P.plus(P.lt(L.number_token)).match(ctx) == [L.number_token(0)]
 
