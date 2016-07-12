@@ -71,23 +71,36 @@ def mask_stream(source):
   last = None
   while source:
     if source[0] == '\n':
+      # skip repeated newlines
       while source and source[0] == '\n':
         skip(1)
         col = 0
         line += 1
 
+      # get this line's indentation
       depth = indent.match(source)
       depth_amt = len(depth.group(0))
 
+      # skip this line if it was just an indentation
+      if source and source[depth_amt] == '\n':
+        skip(1)
+        col = 0
+        line += 1
+        continue
+
+      # handle indents
       if depth_amt > indents[-1]:
         last = indent_token()
         yield last
         indents.append(depth_amt)
+
+      # handle newlines at the same indentation
       else:
         if not isinstance(last, (type(None), indent_token, newline_token)):
           last = newline_token()
           yield last
 
+      # handle dedents
       while depth_amt < indents[-1]:
         last = newline_token()
         yield dedent_token()
@@ -95,14 +108,15 @@ def mask_stream(source):
         del indents[-1]
 
       skip(depth_amt)
-
       if not source:
         break
 
+    # skip internal whitespace
     if source[0].isspace():
       skip(1)
       continue
 
+    # tokenize
     for rule, kind in rules.items():
       match = rule.match(source)
       if match:
