@@ -1,5 +1,6 @@
 import re
 from .token import bool_token
+from .token import dedent_token
 from .token import end_token
 from .token import float_token
 from .token import indent_token
@@ -107,8 +108,9 @@ def mask_stream(source):
       if match:
         value = match.group(0)
         skip(len(value))
-        last = kind(value)
-        yield last
+        if kind:
+          last = kind(value)
+          yield last
         break
 
   yield end_token()
