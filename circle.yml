@@ -1,0 +1,6 @@
+machine:
+  python:
+    version: 3.5.1
+test:
+  override:
+    - export PYTHONPATH=$(pwd); py.test -rap -v -n 0 --tb=long --cov=pymask --junit-xml=$CIRCLE_TEST_REPORTS/tests.xml
