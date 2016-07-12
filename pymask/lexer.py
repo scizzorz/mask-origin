@@ -11,6 +11,12 @@ class token(metaclass=metatoken):
   def __eq__(self, other):
     return type(self) is type(other)
 
+  def __str__(self):
+    return str(type(self))
+
+  def __repr__(self):
+    return '<{}>'.format(self)
+
 class end_token(token):
   pass
 
@@ -36,7 +42,7 @@ class value_token(token):
     return '{}({!r})'.format(type(self), self.value)
 
   def __repr__(self):
-    return '<{}({!r})>'.format(type(self), self.value)
+    return '<{}>'.format(self)
 
 class keyword_token(value_token):
   pass

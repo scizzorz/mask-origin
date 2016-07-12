@@ -15,9 +15,11 @@ def test_eq():
   assert L.int_token(0) != L.name_token('name')
 
 def test_str():
+  assert str(L.end_token()) == 'end_token'
   assert str(L.int_token) == 'int_token'
   assert str(L.int_token(0)) == 'int_token(0)'
 
 def test_repr():
+  assert repr(L.end_token()) == '<end_token>'
   assert repr(L.int_token) == '<int_token>'
   assert repr(L.int_token(0)) == '<int_token(0)>'
