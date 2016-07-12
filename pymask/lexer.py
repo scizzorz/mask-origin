@@ -6,7 +6,8 @@ class metatoken(type):
     return '<{}>'.format(self.__name__)
 
 class token(metaclass=metatoken):
-  pass
+  def __eq__(self, other):
+    return type(self) is type(other)
 
 class end_token(token):
   pass
@@ -18,10 +19,7 @@ class value_token(token):
     self.value = value
 
   def __eq__(self, other):
-    if not isinstance(other, value_token):
-      return False
-
-    return self.value == other.value
+    return type(self) is type(other) and self.value == other.value
 
   def __str__(self):
     return '{}({!r})'.format(type(self), self.value)

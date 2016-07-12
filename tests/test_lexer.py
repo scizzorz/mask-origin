@@ -2,6 +2,7 @@ import pymask.lexer as L
 import pytest
 
 def test_eq():
+  assert L.end_token() == L.end_token()
   assert L.number_token(0) == L.number_token(0)
   assert L.number_token(0) != L.number_token(1)
   assert L.number_token(0) != L.name_token('name')
