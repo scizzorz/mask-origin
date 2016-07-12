@@ -25,7 +25,6 @@ class context:
     else:
       raise exc(msg)
 
-
 class parser:
   def match(self, ctx):
     ctx.panic('Invalid parser: no `match` method', exc=NotImplementedError)
