@@ -39,19 +39,25 @@ def test_literals():
 
 def test_whitespace():
   stream = L.mask_stream('1\n'
-                         '\n' # extra blank lines
+                         '\n'        # extra blank lines
+                         ' \n'
                          '2\n'
-                         '  3\n' # indent
-                         '\n' # blank lines in a block
+                         '  3\n'     # indent
+                         '\n'        # blank lines in a block
                          '\n'
                          '  4\n'
                          '    5  \n'
-                         '    6  \n' # trailing whtiespace
-                         '  7\n' # dedent
+                         '\n'        # all sorts of whitespace
+                         ' \n'
+                         '  \n'
+                         '   \n'
+                         '    \n'
+                         '    6  \n' # trailing whitespace
+                         '  7\n'     # dedent
                          '      8\n'
-                         '9\n' # multiple simultaneous dedents
+                         '9\n'       # multiple simultaneous dedents
                          ' 10\n'
-                         '  11\n') # ending dedent
+                         '  11\n')   # ending dedent
 
   assert next(stream) == K.int_token(1)
   assert next(stream) == K.newline_token()
@@ -90,9 +96,20 @@ def test_whitespace():
 def test_comments():
   stream = L.mask_stream('# full line\n'
                          '1 # end of line\n'
-                         '2')
+                         '2 # end of line\n'
+                         '  3 # end of line\n'
+                         '# end of block\n'
+                         '4 # end of line\n'
+                         '# end of program')
 
   assert next(stream) == K.int_token(1)
   assert next(stream) == K.newline_token()
   assert next(stream) == K.int_token(2)
+  assert next(stream) == K.indent_token()
+  assert next(stream) == K.int_token(3)
+  assert next(stream) == K.newline_token()
+  assert next(stream) == K.dedent_token()
+  assert next(stream) == K.newline_token()
+  assert next(stream) == K.int_token(4)
+  assert next(stream) == K.newline_token()
   assert next(stream) == K.end_token()
