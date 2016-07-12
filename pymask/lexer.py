@@ -44,9 +44,6 @@ class keyword_token(value_token):
 class name_token(value_token):
   pass
 
-class number_token(value_token):
-  pass
-
 class symbol_token(value_token):
   pass
 
