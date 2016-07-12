@@ -10,6 +10,7 @@ from .token import newline_token
 from .token import operator_token
 from .token import string_token
 from .token import symbol_token
+from collections import OrderedDict
 
 OPERATORS = (
   '->', '<-',
@@ -40,19 +41,19 @@ def factory(data):
   else:
     return name_token(data)
 
-rules = {
-  r'#.*': None,
-  r'""|"(.*?[^\\])"': string_token,
-  r'(?:0|[1-9][0-9]*)\.[0-9]+': float_token,
-  r'0|[1-9][0-9]*': int_token,
-  r'true|false': bool_token,
-  r'[a-zA-Z_][a-zA-Z0-9_]*': factory,
-  '|'.join(re.escape(x) for x in OPERATORS): operator_token,
-  r'.': symbol_token,
-}
+raw = OrderedDict()
+raw[r'#.*'] = None
+raw[r'""|"(.*?[^\\])"'] = string_token
+raw[r'(?:0|[1-9][0-9]*)\.[0-9]+'] = float_token
+raw[r'0|[1-9][0-9]*'] = int_token
+raw[r'true|false'] = bool_token
+raw[r'[a-zA-Z_][a-zA-Z0-9_]*'] = factory
+raw['|'.join(re.escape(x) for x in OPERATORS)] = operator_token
+raw[r'.'] = symbol_token
 
-rules = {re.compile(k): v for k,v in rules.items()}
-
+rules = OrderedDict()
+for k, v in raw.items():
+  rules[re.compile(k)] = v
 
 indent = re.compile('^[ ]*')
 
